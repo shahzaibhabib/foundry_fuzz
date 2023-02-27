@@ -22,4 +22,16 @@ contract SafeTest is Test {
         uint256 postBalance = address(this).balance;
         assertEq(preBalance + 1 ether, postBalance);
     }
+
+    // default amount of eth given to test contract is 2**96 wei therefore using uint96
+    function testWithdraw_Fuzz(uint96 amount) public {
+        // excluding certain test cases using "assume", fuzzer will discard the inputs and start a new fuzz run
+        vm.assume(amount > 0.1 ether);
+
+        payable(address(safe)).transfer(amount);
+        uint256 preBalance = address(this).balance;
+        safe.withdraw();
+        uint256 postBalance = address(this).balance;
+        assertEq(preBalance + amount, postBalance);
+    }
 }
